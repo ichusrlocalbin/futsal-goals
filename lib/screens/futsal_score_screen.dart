@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class FutsalScorePage extends StatefulWidget {
   const FutsalScorePage({super.key, required this.title});
@@ -17,6 +18,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   int wins = 0;
   int draws = 0;
   int losses = 0;
+  String selectedDateStr = DateFormat('yyyyMMdd').format(DateTime.now());
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -35,28 +37,45 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         .collection('users')
         .doc(currentUser!.uid)
         .collection('scores')
-        .doc('today')
+        .doc(selectedDateStr)
         .get();
-    if (!snapshot.exists) {
-      _createUserScores();
+    if (snapshot.exists && snapshot.data() != null) {
+      final data = snapshot.data()! as Map<String, dynamic>;
+      setState(() {
+        goals = data['goals'] ?? 0;
+        wins = data['wins'] ?? 0;
+        draws = data['draws'] ?? 0;
+        losses = data['losses'] ?? 0;
+      });
+    } else {
+      _resetScores();
     }
-    final data = snapshot.data()! as Map<String, dynamic>;
+  }
+
+  void _resetScores() {
     setState(() {
-      goals = data['goals'] ?? 0;
-      wins = data['wins'] ?? 0;
-      draws = data['draws'] ?? 0;
-      losses = data['losses'] ?? 0;
+      goals = 0;
+      wins = 0;
+      draws = 0;
+      losses = 0;
     });
   }
 
-  void _createUserScores() async {
+  void _updateFireStore(String date, dynamic score) async {
     if (currentUser == null) return;
-    await firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .set({});
+    final DocumentSnapshot user =
+        await firestore.collection('users').doc(currentUser!.uid).get();
+    if (user.exists) {
+      firestore
+          .collection('users')
+          .doc('${currentUser!.uid}/scores/$date')
+          .update(score);
+    } else {
+      firestore
+          .collection('users')
+          .doc('${currentUser!.uid}/scores/$date')
+          .set(score);
+    }
   }
 
   void _incrementGoals() {
@@ -64,12 +83,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     setState(() {
       goals++;
     });
-    firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .update({
+    _updateFireStore(selectedDateStr, {
       'goals': goals,
     });
   }
@@ -85,12 +99,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         losses++;
       }
     });
-    firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .update({
+    _updateFireStore(selectedDateStr, {
       'wins': wins,
       'draws': draws,
       'losses': losses,
@@ -102,12 +111,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     setState(() {
       goals = 0;
     });
-    firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .update({
+    _updateFireStore(selectedDateStr, {
       'goals': 0,
     });
   }
@@ -117,12 +121,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     setState(() {
       wins = 0;
     });
-    firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .update({
+    _updateFireStore(selectedDateStr, {
       'wins': 0,
     });
   }
@@ -132,12 +131,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     setState(() {
       draws = 0;
     });
-    firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .update({
+    _updateFireStore(selectedDateStr, {
       'draws': 0,
     });
   }
@@ -147,14 +141,27 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     setState(() {
       losses = 0;
     });
-    firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('scores')
-        .doc('today')
-        .update({
+    _updateFireStore(selectedDateStr, {
       'losses': 0,
     });
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final selectedDate = DateTime.parse(selectedDateStr);
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.parse(selectedDateStr),
+      firstDate: DateTime(selectedDate.year - 10),
+      lastDate: DateTime(selectedDate.year + 10),
+    );
+    if (picked == null) return;
+    final pickedDateStr = DateFormat('yyyyMMdd').format(picked);
+    if (pickedDateStr != selectedDateStr) {
+      setState(() {
+        selectedDateStr = pickedDateStr;
+        _loadScores();
+      });
+    }
   }
 
   Future<void> _signOut() async {
@@ -173,6 +180,11 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            FloatingActionButton(
+              onPressed: () => _selectDate(context),
+              tooltip: 'SelectDate',
+              child: const Icon(Icons.calendar_month),
+            ),
             const Icon(Icons.sports_soccer),
             Text(
               '$goals',
