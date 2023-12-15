@@ -19,39 +19,63 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   int losses = 0;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final _yearsStream =
-      FirebaseFirestore.instance.collection('years').snapshots();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? currentUser;
 
   @override
   void initState() {
     super.initState();
+    currentUser = _auth.currentUser;
     _loadScores();
   }
 
   void _loadScores() async {
-    DocumentSnapshot snapshot =
-        await firestore.collection('scores').doc('today').get();
-    if (snapshot.exists) {
-      final data = snapshot.data()! as Map<String, dynamic>;
-      setState(() {
-        goals = data['goals'] ?? 0;
-        wins = data['wins'] ?? 0;
-        draws = data['draws'] ?? 0;
-        losses = data['losses'] ?? 0;
-      });
+    if (currentUser == null) return;
+    DocumentSnapshot snapshot = await firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .get();
+    if (!snapshot.exists) {
+      _createUserScores();
     }
+    final data = snapshot.data()! as Map<String, dynamic>;
+    setState(() {
+      goals = data['goals'] ?? 0;
+      wins = data['wins'] ?? 0;
+      draws = data['draws'] ?? 0;
+      losses = data['losses'] ?? 0;
+    });
+  }
+
+  void _createUserScores() async {
+    if (currentUser == null) return;
+    await firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .set({});
   }
 
   void _incrementGoals() {
+    if (currentUser == null) return;
     setState(() {
       goals++;
     });
-    firestore.collection('scores').doc('today').update({
+    firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .update({
       'goals': goals,
     });
   }
 
   void _incrementResult(String result) {
+    if (currentUser == null) return;
     setState(() {
       if (result == 'wins') {
         wins++;
@@ -61,7 +85,12 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         losses++;
       }
     });
-    firestore.collection('scores').doc('today').update({
+    firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .update({
       'wins': wins,
       'draws': draws,
       'losses': losses,
@@ -69,45 +98,70 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   }
 
   void _resetGoals() {
+    if (currentUser == null) return;
     setState(() {
       goals = 0;
     });
-    firestore.collection('scores').doc('today').update({
+    firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .update({
       'goals': 0,
     });
   }
 
   void _resetWins() {
+    if (currentUser == null) return;
     setState(() {
       wins = 0;
     });
-    firestore.collection('scores').doc('today').update({
+    firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .update({
       'wins': 0,
     });
   }
 
   void _resetDraws() {
+    if (currentUser == null) return;
     setState(() {
       draws = 0;
     });
-    firestore.collection('scores').doc('today').update({
+    firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .update({
       'draws': 0,
     });
   }
 
   void _resetLosses() {
+    if (currentUser == null) return;
     setState(() {
       losses = 0;
     });
-    firestore.collection('scores').doc('today').update({
+    firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('scores')
+        .doc('today')
+        .update({
       'losses': 0,
     });
   }
 
   Future<void> _signOut() async {
+    if (currentUser == null) return;
     await FirebaseAuth.instance.signOut();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
