@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +14,8 @@ class FutsalScorePage extends StatefulWidget {
   @override
   State<FutsalScorePage> createState() => _FutsalScorePageState();
 }
+
+enum Score { goals, wins, draws, losses }
 
 class _FutsalScorePageState extends State<FutsalScorePage> {
   int goals = 0;
@@ -79,71 +82,33 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     }
   }
 
-  void _incrementGoals() {
-    if (currentUser == null) return;
-    setState(() {
-      goals++;
-    });
-    _updateFireStore(selectedDateStr, {
-      'goals': goals,
-    });
+  void _incrementScore(Score score) {
+    _inCrementOrDecrementScore(score, true);
   }
 
-  void _incrementResult(String result) {
+  void _decrementScore(Score score) {
+    _inCrementOrDecrementScore(score, false);
+  }
+
+  void _inCrementOrDecrementScore(Score score, bool isIncrement) {
     if (currentUser == null) return;
     setState(() {
-      if (result == 'wins') {
-        wins++;
-      } else if (result == 'draws') {
-        draws++;
-      } else if (result == 'losses') {
-        losses++;
+      switch (score) {
+        case Score.goals:
+          goals = isIncrement ? goals + 1 : max(goals - 1, 0);
+        case Score.wins:
+          wins = isIncrement ? wins + 1 : max(wins - 1, 0);
+        case Score.draws:
+          draws = isIncrement ? draws + 1 : max(draws - 1, 0);
+        case Score.losses:
+          losses = isIncrement ? losses + 1 : max(losses - 1, 0);
       }
     });
     _updateFireStore(selectedDateStr, {
+      'goals': goals,
       'wins': wins,
       'draws': draws,
       'losses': losses,
-    });
-  }
-
-  void _resetGoals() {
-    if (currentUser == null) return;
-    setState(() {
-      goals = 0;
-    });
-    _updateFireStore(selectedDateStr, {
-      'goals': 0,
-    });
-  }
-
-  void _resetWins() {
-    if (currentUser == null) return;
-    setState(() {
-      wins = 0;
-    });
-    _updateFireStore(selectedDateStr, {
-      'wins': 0,
-    });
-  }
-
-  void _resetDraws() {
-    if (currentUser == null) return;
-    setState(() {
-      draws = 0;
-    });
-    _updateFireStore(selectedDateStr, {
-      'draws': 0,
-    });
-  }
-
-  void _resetLosses() {
-    if (currentUser == null) return;
-    setState(() {
-      losses = 0;
-    });
-    _updateFireStore(selectedDateStr, {
-      'losses': 0,
     });
   }
 
@@ -191,67 +156,62 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
               '$goals',
             ),
             FloatingActionButton(
-              onPressed: _incrementGoals,
+              onPressed: () => _incrementScore(Score.goals),
               tooltip: 'Increment',
               child: const Icon(Icons.add),
             ),
-            ElevatedButton(
-              onPressed: _resetGoals,
-              child: const Icon(Icons.exposure_zero),
+            FloatingActionButton(
+              onPressed: () => _decrementScore(Score.goals),
+              tooltip: 'Decrement',
+              child: const Icon(Icons.exposure_minus_1),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      'o: $wins',
-                    ),
-                    FloatingActionButton(
-                      onPressed: () => _incrementResult('wins'),
-                      tooltip: 'Increment',
-                      child: const Icon(Icons.add),
-                    ),
-                    ElevatedButton(
-                      onPressed: _resetWins,
-                      child: const Text('リセット'),
-                    ),
-                    ]
-                  ),
-                  Column(
-                    children: <Widget> [
-                      Text(
-                        '△: $draws',
-                      ),
-                      FloatingActionButton(
-                        onPressed: () => _incrementResult('draws'),
-                        tooltip: 'Increment',
-                        child: const Icon(Icons.add),
-                      ),
-                      ElevatedButton(
-                        onPressed: _resetDraws,
-                        child: const Text('リセット'),
-                      ),
-                    ]
-                  ),
-                  Column(
-                    children: <Widget> [
-                      Text(
-                        'x: $losses',
-                      ),
-                      FloatingActionButton(
-                        onPressed: () => _incrementResult('losses'),
-                        tooltip: 'Increment',
-                        child: const Icon(Icons.add),
-                      ),
-                      ElevatedButton(
-                        onPressed: _resetLosses,
-                        child: const Text('リセット'),
-                      ),
-                    ]
-                  ),
-                ]
-              ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Column(children: <Widget>[
+                Text(
+                  'o: $wins',
+                ),
+                FloatingActionButton(
+                  onPressed: () => _incrementScore(Score.wins),
+                  tooltip: 'Increment',
+                  child: const Icon(Icons.add),
+                ),
+                FloatingActionButton(
+                  onPressed: () => _decrementScore(Score.wins),
+                  tooltip: 'Decrement',
+                  child: const Icon(Icons.exposure_minus_1),
+                ),
+              ]),
+              Column(children: <Widget>[
+                Text(
+                  '△: $draws',
+                ),
+                FloatingActionButton(
+                  onPressed: () => _incrementScore(Score.draws),
+                  tooltip: 'Increment',
+                  child: const Icon(Icons.add),
+                ),
+                FloatingActionButton(
+                  onPressed: () => _decrementScore(Score.draws),
+                  tooltip: 'Decrement',
+                  child: const Icon(Icons.exposure_minus_1),
+                ),
+              ]),
+              Column(children: <Widget>[
+                Text(
+                  'x: $losses',
+                ),
+                FloatingActionButton(
+                  onPressed: () => _incrementScore(Score.losses),
+                  tooltip: 'Increment',
+                  child: const Icon(Icons.add),
+                ),
+                FloatingActionButton(
+                  onPressed: () => _decrementScore(Score.losses),
+                  tooltip: 'Decrement',
+                  child: const Icon(Icons.exposure_minus_1),
+                ),
+              ]),
+            ]),
             ElevatedButton(
               onPressed: () => Navigator.push(
                 context,
