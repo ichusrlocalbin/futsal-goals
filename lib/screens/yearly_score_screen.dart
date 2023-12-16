@@ -79,6 +79,37 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
     }
   }
 
+  Future<void> _selectYear(BuildContext context) async {
+    var selectedYear = DateTime.parse('${selectedYearStr}0101');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Year'),
+          content: SizedBox(
+            width: 300,
+            height: 300,
+            child: YearPicker(
+              initialDate: selectedYear,
+              firstDate: DateTime(selectedYear.year - 10),
+              lastDate: DateTime(selectedYear.year + 10),
+              selectedDate: selectedYear,
+              onChanged: (DateTime dateTime) {
+                Navigator.pop(context);
+                final pickerYearStr = DateFormat('yyyy').format(dateTime);
+                if (pickerYearStr != selectedYearStr) {
+                  setState(() {
+                      selectedYearStr = pickerYearStr;
+                      _calculateYearlyScores();
+                  });
+                }
+            })
+          )
+        );
+      }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +120,11 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
         child: Column(
           children: [
             // 年間データ
+            FloatingActionButton(
+              onPressed: () => _selectYear(context),
+              tooltip: 'Select Year',
+              child: const Icon(Icons.calendar_month),
+            ),
             DataTable(
               columns: const <DataColumn>[
                 DataColumn(label: Text('ゴール')),
