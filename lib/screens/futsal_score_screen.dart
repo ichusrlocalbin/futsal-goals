@@ -199,42 +199,59 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
               onPressed: _resetGoals,
               child: const Icon(Icons.exposure_zero),
             ),
-            Text(
-              'o: $wins',
-            ),
-            FloatingActionButton(
-              onPressed: () => _incrementResult('wins'),
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
-            ),
-            ElevatedButton(
-              onPressed: _resetWins,
-              child: const Text('リセット'),
-            ),
-            Text(
-              '△: $draws',
-            ),
-            FloatingActionButton(
-              onPressed: () => _incrementResult('draws'),
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
-            ),
-            ElevatedButton(
-              onPressed: _resetDraws,
-              child: const Text('リセット'),
-            ),
-            Text(
-              'x: $losses',
-            ),
-            FloatingActionButton(
-              onPressed: () => _incrementResult('losses'),
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
-            ),
-            ElevatedButton(
-              onPressed: _resetLosses,
-              child: const Text('リセット'),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Text(
+                      'o: $wins',
+                    ),
+                    FloatingActionButton(
+                      onPressed: () => _incrementResult('wins'),
+                      tooltip: 'Increment',
+                      child: const Icon(Icons.add),
+                    ),
+                    ElevatedButton(
+                      onPressed: _resetWins,
+                      child: const Text('リセット'),
+                    ),
+                    ]
+                  ),
+                  Column(
+                    children: <Widget> [
+                      Text(
+                        '△: $draws',
+                      ),
+                      FloatingActionButton(
+                        onPressed: () => _incrementResult('draws'),
+                        tooltip: 'Increment',
+                        child: const Icon(Icons.add),
+                      ),
+                      ElevatedButton(
+                        onPressed: _resetDraws,
+                        child: const Text('リセット'),
+                      ),
+                    ]
+                  ),
+                  Column(
+                    children: <Widget> [
+                      Text(
+                        'x: $losses',
+                      ),
+                      FloatingActionButton(
+                        onPressed: () => _incrementResult('losses'),
+                        tooltip: 'Increment',
+                        child: const Icon(Icons.add),
+                      ),
+                      ElevatedButton(
+                        onPressed: _resetLosses,
+                        child: const Text('リセット'),
+                      ),
+                    ]
+                  ),
+                ]
+              ),
             ElevatedButton(
               onPressed: () => Navigator.push(
                 context,
