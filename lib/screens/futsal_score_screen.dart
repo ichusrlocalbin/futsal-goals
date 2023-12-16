@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'yearly_score_screen.dart';
 
 class FutsalScorePage extends StatefulWidget {
   const FutsalScorePage({super.key, required this.title});
@@ -233,6 +234,13 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
             ElevatedButton(
               onPressed: _resetLosses,
               child: const Text('リセット'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => YearlyScorePage()),
+              ),
+              child: const Text('年間情報'),
             ),
           ],
         ),
