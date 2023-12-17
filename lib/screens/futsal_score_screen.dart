@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'screens.dart';
+import 'login_screen.dart';
 import '../utils.dart';
 
 class FutsalScorePage extends StatefulWidget {
@@ -75,15 +76,9 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     final DocumentSnapshot data =
         await firestore.collection('users').doc(path).get();
     if (data.exists) {
-      firestore
-          .collection('users')
-          .doc(path)
-          .update(score);
+      firestore.collection('users').doc(path).update(score);
     } else {
-      firestore
-          .collection('users')
-          .doc(path)
-          .set(score);
+      firestore.collection('users').doc(path).set(score);
     }
   }
 
@@ -147,10 +142,72 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   Future<void> _signOut() async {
     if (currentUser == null) return;
     await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final goalBiggerButton = OverlapButtonProperties(
+      onPressed: () => _incrementScore(Score.goals),
+      size: 70,
+      iconColor: Colors.white,
+      backgroundColor: Colors.lightBlue.shade700,
+      iconData: Icons.sports_soccer,
+    );
+    final goalSmallerButton = OverlapButtonProperties(
+      onPressed: () => _decrementScore(Score.goals),
+      size: 30,
+      iconColor: Colors.white,
+      backgroundColor: Colors.lightBlue,
+      iconData: Icons.arrow_circle_down_outlined,
+    );
+    final winBiggerButton = OverlapButtonProperties(
+      onPressed: () => _incrementScore(Score.wins),
+      size: 70,
+      iconColor: Colors.white,
+      backgroundColor: Colors.green.shade700,
+      iconData: Icons.circle_outlined,
+    );
+    final winSmallerButton = OverlapButtonProperties(
+      onPressed: () => _decrementScore(Score.wins),
+      size: 30,
+      iconColor: Colors.white,
+      backgroundColor: Colors.green,
+      iconData: Icons.arrow_circle_down_outlined,
+    );
+    final drawBiggerButton = OverlapButtonProperties(
+      onPressed: () => _incrementScore(Score.draws),
+      size: 70,
+      iconColor: Colors.white,
+      backgroundColor: Colors.amber.shade700,
+      iconData: Icons.change_history,
+    );
+    final drawSmallerButton = OverlapButtonProperties(
+      onPressed: () => _decrementScore(Score.draws),
+      size: 30,
+      iconColor: Colors.white,
+      backgroundColor: Colors.amber,
+      iconData: Icons.arrow_circle_down_outlined,
+    );
+    final lossBiggerButton = OverlapButtonProperties(
+      onPressed: () => _incrementScore(Score.losses),
+      size: 70,
+      iconColor: Colors.white,
+      backgroundColor: Colors.red.shade700,
+      iconData: Icons.clear_outlined,
+    );
+    final lossSmallerButton = OverlapButtonProperties(
+      onPressed: () => _decrementScore(Score.losses),
+      size: 30,
+      iconColor: Colors.white,
+      backgroundColor: Colors.red,
+      iconData: Icons.arrow_circle_down_outlined,
+    );
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -160,88 +217,77 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              Utils.dateFormatString(selectedDateStr),
-            ),
-            FloatingActionButton(
-              onPressed: () => _selectDate(context),
-              tooltip: 'SelectDate',
-              child: const Icon(Icons.calendar_month),
-            ),
-            const Icon(Icons.sports_soccer),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+              Text(
+                Utils.dateFormatString(selectedDateStr),
+                style: const TextStyle(fontSize: 36),
+              ),
+              FloatingActionButton(
+                onPressed: () => _selectDate(context),
+                tooltip: 'SelectDate',
+                child: const Icon(Icons.calendar_month),
+              ),
+            ]),
             Text(
               '$goals',
+              style: const TextStyle(fontSize: 80),
             ),
-            FloatingActionButton(
-              onPressed: () => _incrementScore(Score.goals),
-              tooltip: 'Increment',
-              child: const Icon(Icons.add),
-            ),
-            FloatingActionButton(
-              onPressed: () => _decrementScore(Score.goals),
-              tooltip: 'Decrement',
-              child: const Icon(Icons.exposure_minus_1),
+            SizedBox(
+              height: 100,
+              width: 100,
+              child: OverlapCircleTwoButtons(
+                  biggerButton: goalBiggerButton,
+                  smallerButton: goalSmallerButton),
             ),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               Column(children: <Widget>[
                 Text(
-                  'o: $wins',
+                  wins.toString(),
+                  style: const TextStyle(fontSize: 80),
                 ),
-                FloatingActionButton(
-                  onPressed: () => _incrementScore(Score.wins),
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: () => _decrementScore(Score.wins),
-                  tooltip: 'Decrement',
-                  child: const Icon(Icons.exposure_minus_1),
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: OverlapCircleTwoButtons(
+                      biggerButton: winBiggerButton,
+                      smallerButton: winSmallerButton),
                 ),
               ]),
               Column(children: <Widget>[
                 Text(
-                  '△: $draws',
+                  draws.toString(),
+                  style: const TextStyle(fontSize: 80),
                 ),
-                FloatingActionButton(
-                  onPressed: () => _incrementScore(Score.draws),
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: () => _decrementScore(Score.draws),
-                  tooltip: 'Decrement',
-                  child: const Icon(Icons.exposure_minus_1),
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: OverlapCircleTwoButtons(
+                      biggerButton: drawBiggerButton,
+                      smallerButton: drawSmallerButton),
                 ),
               ]),
               Column(children: <Widget>[
                 Text(
-                  'x: $losses',
+                  losses.toString(),
+                  style: const TextStyle(fontSize: 80),
                 ),
-                FloatingActionButton(
-                  onPressed: () => _incrementScore(Score.losses),
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: () => _decrementScore(Score.losses),
-                  tooltip: 'Decrement',
-                  child: const Icon(Icons.exposure_minus_1),
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: OverlapCircleTwoButtons(
+                      biggerButton: lossBiggerButton,
+                      smallerButton: lossSmallerButton),
                 ),
               ]),
             ]),
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, Screen.yearlyScore.name),
-              child: const Text('年間情報'),
-            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _signOut,
-        tooltip: 'SignOut',
-        child: const Icon(Icons.logout),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _signOut,
+      //   tooltip: 'SignOut',
+      //   child: const Icon(Icons.logout),
+      // ), // This trailing comma makes auto-formatting nicer for build methods.
       drawer: _FutsalScoreDrawer(context, this),
     );
   }
@@ -255,13 +301,13 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
           content: const Text('本当に削除しますか？'),
           actions: <Widget>[
             TextButton(
-                child: const Text('Cancel'),
-                // onPressed: () => Navigator.pop(context),
-                onPressed: () {
-                  Navigator.pop(context); // AlertDialog
-                  Navigator.pop(context); // Drawer
-                },
-              ),
+              child: const Text('Cancel'),
+              // onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context); // AlertDialog
+                Navigator.pop(context); // Drawer
+              },
+            ),
             TextButton(
               child: const Text('OK'),
               onPressed: () {
@@ -290,13 +336,25 @@ class _FutsalScoreDrawer extends Drawer {
                   color: Colors.blue,
                 ),
                 child: Text(
-                  'Futsal Scoreboard',
+                  '得点記録',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                   ),
                 ),
               ),
+              ListTile(
+                  title: RichText(
+                      text: TextSpan(children: [
+                    TextSpan(text: "年間情報  "),
+                    const WidgetSpan(
+                      child: Icon(Icons.calendar_month, color: Colors.lightBlue),
+                    ),
+                  ])),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, Screen.yearlyScore.name);
+                  }),
               ListTile(
                 title: const Text('計算対象外'),
                 trailing: Switch(
@@ -320,18 +378,91 @@ class _FutsalScoreDrawer extends Drawer {
                 ),
               ),
               ListTile(
-                title: RichText(
-                  text: TextSpan(children: [
-                    TextSpan(text: '${Utils.dateFormatString(state.selectedDateStr)}データ削除 '),
+                  title: RichText(
+                      text: TextSpan(children: [
+                    TextSpan(
+                        text:
+                            '${Utils.dateFormatString(state.selectedDateStr)}データ削除 '),
                     const WidgetSpan(
                       child: Icon(Icons.delete, color: Colors.redAccent),
                     ),
-                ])),
-                onTap: () {
-                  state._showDeleteDialog(context);
-                }
-              ),
+                  ])),
+                  onTap: () {
+                    state._showDeleteDialog(context);
+                  }),
+              ListTile(
+                  title: RichText(
+                    text: TextSpan(children: [
+                        const TextSpan(text: 'ログアウト '),
+                        WidgetSpan(
+                          child: Icon(Icons.logout, color: Colors.grey.shade700),
+                        ),
+                  ])),
+                  onTap: state._signOut,
+                ),
             ],
           ),
         );
+}
+
+class OverlapButtonProperties {
+  final void Function() onPressed;
+  final double size;
+  final Color iconColor;
+  final Color backgroundColor;
+  final IconData iconData;
+
+  const OverlapButtonProperties({
+    required this.onPressed,
+    required this.size,
+    required this.iconColor,
+    required this.backgroundColor,
+    required this.iconData,
+  });
+}
+
+class OverlapCircleTwoButtons extends StatelessWidget {
+  final OverlapButtonProperties biggerButton;
+  final OverlapButtonProperties smallerButton;
+
+  const OverlapCircleTwoButtons({
+    super.key,
+    required this.biggerButton,
+    required this.smallerButton,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        Positioned(
+          child: ElevatedButton(
+            onPressed: biggerButton.onPressed,
+            child: Icon(biggerButton.iconData,
+                color: biggerButton.iconColor, size: biggerButton.size),
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(15),
+              backgroundColor: biggerButton.backgroundColor,
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          child: ElevatedButton(
+            onPressed: smallerButton.onPressed,
+            child: Icon(smallerButton.iconData,
+                color: Colors.white, size: smallerButton.size),
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8.0),
+              backgroundColor: smallerButton.backgroundColor,
+              side: const BorderSide(width: 1.5, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

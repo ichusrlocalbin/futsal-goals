@@ -42,11 +42,11 @@ class AuthenticationWrapper extends MaterialPageRoute {
               return LoginPage();
             }
             if (settings.name == Screen.futsalScore.name) {
-              return const FutsalScorePage(title: 'Futsal Scoreboard');
+              return const FutsalScorePage(title: '得点記録');
             } else if (settings.name == Screen.yearlyScore.name) {
               return YearlyScorePage();
             } else {
-              return const FutsalScorePage(title: 'Futsal Scoreboard');
+              return const FutsalScorePage(title: '得点記録');
             }
           }
       );

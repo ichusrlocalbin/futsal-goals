@@ -23,6 +23,7 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
   int yearlyLosses = 0;
   int totalPlayedDays = 0;
   double winRate = 0.0;
+  double lossRate = 0.0;
   double averageGoalsPerDay = 0.0;
   String selectedYearStr = DateFormat('yyyy').format(DateTime.now());
 
@@ -75,6 +76,7 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
       totalPlayedDays = tempScores.length;
       num totalPlayed = totalWins + totalDraws + totalLosses;
       winRate = totalPlayed > 0 ? totalWins / totalPlayed : 0.0;
+      lossRate = totalPlayed > 0 ? totalLosses / totalPlayed : 0.0;
       averageGoalsPerDay =
           tempScores.isNotEmpty && (tempScores.length - ignoreDays) != 0
               ? totalGoals / (tempScores.length - ignoreDays)
@@ -146,17 +148,24 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${selectedYearStr}年 年間情報'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Colors.white,
+        title: Text('年間情報'),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // 年間データ
-            FloatingActionButton(
-              onPressed: () => _selectYear(context),
-              tooltip: 'Select Year',
-              child: const Icon(Icons.calendar_month),
-            ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                Text('${selectedYearStr}年',
+                  style: const TextStyle(fontSize: 36),
+                ),
+                FloatingActionButton(
+                  onPressed: () => _selectYear(context),
+                  tooltip: 'Select Year',
+                  child: const Icon(Icons.calendar_month),
+                ),
+            ]),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
@@ -166,11 +175,6 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                   const DataColumn(label: Text('勝')),
                   const DataColumn(label: Text('分')),
                   const DataColumn(label: Text('負')),
-                  DataColumn(label: RichText(text: const TextSpan(children:[
-                          WidgetSpan(child: Icon(Icons.sports_soccer)),
-                          TextSpan(text: '/日'),
-                ]))),
-                  const DataColumn(label: Text('勝率')),
                 ],
                 rows: [
                   DataRow(
@@ -180,7 +184,27 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                       DataCell(Text(yearlyWins.toString())),
                       DataCell(Text(yearlyDraws.toString())),
                       DataCell(Text(yearlyLosses.toString())),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: <DataColumn>[
+                  DataColumn(label: RichText(text: const TextSpan(children:[
+                          WidgetSpan(child: Icon(Icons.sports_soccer)),
+                          TextSpan(text: '/日'),
+                ]))),
+                  const DataColumn(label: Text('勝率')),
+                  const DataColumn(label: Text('負け率')),
+                ],
+                rows: [
+                  DataRow(
+                    cells: <DataCell>[
                       DataCell(Text(averageGoalsPerDay.toStringAsFixed(1))),
+                      DataCell(Text((lossRate * 100).toStringAsFixed(0) + '%')),
                       DataCell(Text((winRate * 100).toStringAsFixed(0) + '%')),
                     ],
                   )
@@ -215,11 +239,6 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                 }).toList(),
               ),
             ),
-            ElevatedButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, Screen.futsalScore.name),
-              child: const Text('得点記録'),
-            ),
           ],
         ),
       ),
@@ -235,18 +254,30 @@ class _YearlyScoreDrawer extends Drawer {
       : super(
           child: ListView(
             children: <Widget>[
-              const DrawerHeader(
+              DrawerHeader(
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
-                child: Text(
-                  'Yearly Scoreboard',
+                child: const Text(
+                  '年間情報',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                   ),
                 ),
               ),
+              ListTile(
+                  title: RichText(
+                    text: TextSpan(children: [
+                        const TextSpan(text: "得点記録  "),
+                        const WidgetSpan(
+                          child: Icon(Icons.mode_edit, color: Colors.lightBlue),
+                        ),
+                  ])),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, Screen.futsalScore.name);
+                  }),
               ListTile(
                   title: RichText(
                       text: TextSpan(children: [
