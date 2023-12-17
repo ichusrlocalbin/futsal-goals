@@ -157,54 +157,63 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
               tooltip: 'Select Year',
               child: const Icon(Icons.calendar_month),
             ),
-            DataTable(
-              columns: const <DataColumn>[
-                DataColumn(label: Text('ゴール')),
-                DataColumn(label: Text('日数')),
-                DataColumn(label: Text('勝')),
-                DataColumn(label: Text('分')),
-                DataColumn(label: Text('負')),
-                DataColumn(label: Text('ゴール/日')),
-                DataColumn(label: Text('勝率')),
-              ],
-              rows: [
-                DataRow(
-                  cells: <DataCell>[
-                    DataCell(Text(yearlyGoals.toString())),
-                    DataCell(Text(totalPlayedDays.toString())),
-                    DataCell(Text(yearlyWins.toString())),
-                    DataCell(Text(yearlyDraws.toString())),
-                    DataCell(Text(yearlyLosses.toString())),
-                    DataCell(Text(averageGoalsPerDay.toStringAsFixed(1))),
-                    DataCell(Text((winRate * 100).toStringAsFixed(0) + '%')),
-                  ],
-                )
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: <DataColumn>[
+                  const DataColumn(label: Icon(Icons.sports_soccer)),
+                  const DataColumn(label: Text('日数')),
+                  const DataColumn(label: Text('勝')),
+                  const DataColumn(label: Text('分')),
+                  const DataColumn(label: Text('負')),
+                  DataColumn(label: RichText(text: const TextSpan(children:[
+                          WidgetSpan(child: Icon(Icons.sports_soccer)),
+                          TextSpan(text: '/日'),
+                ]))),
+                  const DataColumn(label: Text('勝率')),
+                ],
+                rows: [
+                  DataRow(
+                    cells: <DataCell>[
+                      DataCell(Text(yearlyGoals.toString())),
+                      DataCell(Text(totalPlayedDays.toString())),
+                      DataCell(Text(yearlyWins.toString())),
+                      DataCell(Text(yearlyDraws.toString())),
+                      DataCell(Text(yearlyLosses.toString())),
+                      DataCell(Text(averageGoalsPerDay.toStringAsFixed(1))),
+                      DataCell(Text((winRate * 100).toStringAsFixed(0) + '%')),
+                    ],
+                  )
+                ],
+              ),
             ),
             // 各日のスコア表示部分
-            DataTable(
-              columns: const <DataColumn>[
-                DataColumn(label: Text('日付')),
-                DataColumn(label: Text('ゴール')),
-                DataColumn(label: Text('勝ち')),
-                DataColumn(label: Text('引き分け')),
-                DataColumn(label: Text('負け')),
-                DataColumn(label: Text('対象外')),
-              ],
-              rows: dailyScores.map<DataRow>((score) {
-                return DataRow(
-                  cells: <DataCell>[
-                    DataCell(Text(Utils.dateFormatString(score['date']))),
-                    DataCell(Text((score['goals'] ?? 0).toString())),
-                    DataCell(Text((score['wins'] ?? 0).toString())),
-                    DataCell(Text((score['draws'] ?? 0).toString())),
-                    DataCell(Text((score['losses'] ?? 0).toString())),
-                    DataCell((score['ignoreInCalculation'] ?? false)
-                        ? Icon(Icons.check)
-                        : Text('')),
-                  ],
-                );
-              }).toList(),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(label: Text('日付')),
+                  DataColumn(label: Icon(Icons.sports_soccer)),
+                  DataColumn(label: Text('勝')),
+                  DataColumn(label: Text('分')),
+                  DataColumn(label: Text('負')),
+                  DataColumn(label: Text('対象外')),
+                ],
+                rows: dailyScores.map<DataRow>((score) {
+                    return DataRow(
+                      cells: <DataCell>[
+                        DataCell(Text(Utils.dateFormatString(score['date']))),
+                        DataCell(Text((score['goals'] ?? 0).toString())),
+                        DataCell(Text((score['wins'] ?? 0).toString())),
+                        DataCell(Text((score['draws'] ?? 0).toString())),
+                        DataCell(Text((score['losses'] ?? 0).toString())),
+                        DataCell((score['ignoreInCalculation'] ?? false)
+                          ? Icon(Icons.check)
+                          : Text('')),
+                      ],
+                    );
+                }).toList(),
+              ),
             ),
             ElevatedButton(
               onPressed: () =>
