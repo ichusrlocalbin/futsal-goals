@@ -2,6 +2,8 @@
 
 ## 環境構築
 
+### console
+
 * firestoreを有効に
 * firebase authを有効に
   * google sign in を有効に → ウエブクライアントID をメモっておく
@@ -26,3 +28,46 @@
     }
   }
   ```
+
+### deploy
+
+* [Build and release a web app](https://docs.flutter.dev/deployment/web)を参考に
+
+#### build
+
+```bash
+$ flutter build web
+```
+
+or
+
+```bash
+$ flutter build web --release
+```
+
+#### firebase hosting
+
+```
+$ firebase init hosting
+> Use an existing project
+> ... (プロジェクトの選択)
+? What do you want to use as your public directory? build/web
+? Configure as a single-page app (rewrite all urls to /index.html)? No
+? Set up automatic builds and deploys with GitHub? No
+✔  Wrote build/web/404.html
+? File build/web/index.html already exists. Overwrite? No
+i  Skipping write of build/web/index.html
+
+i  Writing configuration info to firebase.json...
+i  Writing project information to .firebaserc...
+
+✔  Firebase initialization complete!
+$ 
+```
+
+### deploy
+
+```bash
+$ firebase deply
+```
+https://<プロジェクト名>.web.app にデプロイされる
