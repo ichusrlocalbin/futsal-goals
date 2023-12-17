@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:csv/csv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
@@ -58,7 +61,8 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['date'] = doc.id;
         tempScores.add(data);
-        if (data['ignoreInCalculation'] != null && data['ignoreInCalculation']!) {
+        if (data['ignoreInCalculation'] != null &&
+            data['ignoreInCalculation']!) {
           ignoreDays++;
         } else {
           totalGoals += data['goals'] as int? ?? 0;
@@ -72,7 +76,9 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
       num totalPlayed = totalWins + totalDraws + totalLosses;
       winRate = totalPlayed > 0 ? totalWins / totalPlayed : 0.0;
       averageGoalsPerDay =
-          tempScores.isNotEmpty && (tempScores.length - ignoreDays) != 0 ? totalGoals / (tempScores.length - ignoreDays): 0.0;
+          tempScores.isNotEmpty && (tempScores.length - ignoreDays) != 0
+              ? totalGoals / (tempScores.length - ignoreDays)
+              : 0.0;
 
       setState(() {
         dailyScores = tempScores;
@@ -112,6 +118,28 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                         }
                       })));
         });
+  }
+
+  void generateAndDownloadCsv() {
+    final dailyScoresList = dailyScores
+        .map((score) => [
+              Utils.dateFormatString(score['date']),
+              (score['goals'] ?? 0).toString(),
+              (score['wins'] ?? 0).toString(),
+              (score['draws'] ?? 0).toString(),
+              (score['losses'] ?? 0).toString(),
+              (score['ignoreInCalculation'] ?? false).toString()
+            ])
+        .toList();
+    dailyScoresList.insert(0, ["日付", "ゴール数", "勝ち", "引き分け", "負け", "対象外"]);
+    String csvData = const ListToCsvConverter().convert(dailyScoresList);
+    final bytes = utf8.encode(csvData);
+    final blob = html.Blob([bytes], 'text/csv');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.AnchorElement(href: url)
+      ..setAttribute('download', '${selectedYearStr}_scores.csv')
+      ..click();
+    html.Url.revokeObjectUrl(url);
   }
 
   @override
@@ -171,7 +199,9 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                     DataCell(Text((score['wins'] ?? 0).toString())),
                     DataCell(Text((score['draws'] ?? 0).toString())),
                     DataCell(Text((score['losses'] ?? 0).toString())),
-                    DataCell((score['ignoreInCalculation'] ?? false) ? Icon(Icons.check) : Text('')),
+                    DataCell((score['ignoreInCalculation'] ?? false)
+                        ? Icon(Icons.check)
+                        : Text('')),
                   ],
                 );
               }).toList(),
@@ -184,6 +214,42 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
           ],
         ),
       ),
+      drawer: _YearlyScoreDrawer(context, this),
     );
   }
+}
+
+class _YearlyScoreDrawer extends Drawer {
+  final _YearlyScorePageState state;
+
+  _YearlyScoreDrawer(BuildContext context, this.state)
+      : super(
+          child: ListView(
+            children: <Widget>[
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text(
+                  'Yearly Scoreboard',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              ListTile(
+                  title: RichText(
+                      text: TextSpan(children: [
+                    TextSpan(text: '${state.selectedYearStr}年データダウンロード '),
+                    const WidgetSpan(
+                      child: Icon(Icons.cloud_download_outlined),
+                    ),
+                  ])),
+                  onTap: () {
+                    state.generateAndDownloadCsv();
+                  }),
+            ],
+          ),
+        );
 }
