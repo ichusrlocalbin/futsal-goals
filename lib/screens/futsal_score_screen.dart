@@ -65,6 +65,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
       wins = 0;
       draws = 0;
       losses = 0;
+      ignoreInCalculation = false;
     });
   }
 
@@ -84,6 +85,15 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
           .doc(path)
           .set(score);
     }
+  }
+
+  void _deleteFireStore(String date) async {
+    if (currentUser == null) return;
+    final path = '${currentUser!.uid}/scores/$date';
+    final DocumentSnapshot data =
+        await firestore.collection('users').doc(path).get();
+    if (!data.exists) return;
+    firestore.collection('users').doc(path).delete();
   }
 
   void _incrementScore(Score score) {
@@ -235,6 +245,37 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
       drawer: _FutsalScoreDrawer(context, this),
     );
   }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('データ削除'),
+          content: const Text('本当に削除しますか？'),
+          actions: <Widget>[
+            TextButton(
+                child: const Text('Cancel'),
+                // onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context); // AlertDialog
+                  Navigator.pop(context); // Drawer
+                },
+              ),
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                _deleteFireStore(selectedDateStr);
+                _resetScores();
+                Navigator.pop(context); // AlertDialog
+                Navigator.pop(context); // Drawer
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class _FutsalScoreDrawer extends Drawer {
@@ -279,9 +320,16 @@ class _FutsalScoreDrawer extends Drawer {
                 ),
               ),
               ListTile(
-                title: const Text('Yearly Scoreboard'),
-                onTap: () =>
-                    Navigator.pushNamed(context, Screen.yearlyScore.name),
+                title: RichText(
+                  text: TextSpan(children: [
+                    TextSpan(text: '${Utils.dateFormatString(state.selectedDateStr)}データ削除 '),
+                    const WidgetSpan(
+                      child: Icon(Icons.delete, color: Colors.redAccent),
+                    ),
+                ])),
+                onTap: () {
+                  state._showDeleteDialog(context);
+                }
               ),
             ],
           ),
