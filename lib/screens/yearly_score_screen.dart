@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 import 'futsal_score_screen.dart';
+import 'screens.dart';
 
 class YearlyScorePage extends StatefulWidget {
   @override
@@ -172,12 +173,7 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
               }).toList(),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        FutsalScorePage(title: 'Futsal Scoreboard')),
-              ),
+              onPressed: () => Navigator.pushNamed(context, Screen.futsalScore.name),
               child: const Text('得点記録'),
             ),
           ],

@@ -3,7 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'screens/futsal_score_screen.dart';
+import 'screens/yearly_score_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/screens.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,26 +26,28 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: AuthenticationWrapper(),
+      onGenerateRoute: (settings) => AuthenticationWrapper(settings),
     );
   }
 }
 
-class AuthenticationWrapper extends StatelessWidget {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: _auth.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return const FutsalScorePage(title: 'Futsal Scoreboard');
-        } else {
-          return LoginPage();
-        }
-      },
-    );
-
-  }
+class AuthenticationWrapper extends MaterialPageRoute {
+  final RouteSettings settings;
+  AuthenticationWrapper(
+    this.settings,
+  ) : super(
+          builder: (context) {
+            final user = FirebaseAuth.instance.currentUser;
+            if (user == null) {
+              return LoginPage();
+            }
+            if (settings.name == Screen.futsalScore.name) {
+              return const FutsalScorePage(title: 'Futsal Scoreboard');
+            } else if (settings.name == Screen.yearlyScore.name) {
+              return YearlyScorePage();
+            } else {
+              return const FutsalScorePage(title: 'Futsal Scoreboard');
+            }
+          }
+      );
 }
