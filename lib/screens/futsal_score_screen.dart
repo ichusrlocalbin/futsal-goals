@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'yearly_score_screen.dart';
-import 'screens.dart~';
+import 'screens.dart';
+import '../utils.dart';
 
 class FutsalScorePage extends StatefulWidget {
   const FutsalScorePage({super.key, required this.title});
@@ -23,6 +23,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   int wins = 0;
   int draws = 0;
   int losses = 0;
+  bool ignoreInCalculation = false;
   String selectedDateStr = DateFormat('yyyyMMdd').format(DateTime.now());
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -51,6 +52,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         wins = data['wins'] ?? 0;
         draws = data['draws'] ?? 0;
         losses = data['losses'] ?? 0;
+        ignoreInCalculation = data['ignoreInCalculation'] ?? false;
       });
     } else {
       _resetScores();
@@ -66,19 +68,20 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
     });
   }
 
-  void _updateFireStore(String date, dynamic score) async {
+  void _updateFirestore(String date, dynamic score) async {
     if (currentUser == null) return;
-    final DocumentSnapshot user =
-        await firestore.collection('users').doc(currentUser!.uid).get();
-    if (user.exists) {
+    final path = '${currentUser!.uid}/scores/$date';
+    final DocumentSnapshot data =
+        await firestore.collection('users').doc(path).get();
+    if (data.exists) {
       firestore
           .collection('users')
-          .doc('${currentUser!.uid}/scores/$date')
+          .doc(path)
           .update(score);
     } else {
       firestore
           .collection('users')
-          .doc('${currentUser!.uid}/scores/$date')
+          .doc(path)
           .set(score);
     }
   }
@@ -105,7 +108,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
           losses = isIncrement ? losses + 1 : max(losses - 1, 0);
       }
     });
-    _updateFireStore(selectedDateStr, {
+    _updateFirestore(selectedDateStr, {
       'goals': goals,
       'wins': wins,
       'draws': draws,
@@ -147,6 +150,9 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              Utils.dateFormatString(selectedDateStr),
+            ),
             FloatingActionButton(
               onPressed: () => _selectDate(context),
               tooltip: 'SelectDate',
@@ -214,7 +220,8 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
               ]),
             ]),
             ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, Screen.yearlyScore.name),
+              onPressed: () =>
+                  Navigator.pushNamed(context, Screen.yearlyScore.name),
               child: const Text('年間情報'),
             ),
           ],
@@ -225,6 +232,58 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         tooltip: 'SignOut',
         child: const Icon(Icons.logout),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+      drawer: _FutsalScoreDrawer(context, this),
     );
   }
+}
+
+class _FutsalScoreDrawer extends Drawer {
+  final _FutsalScorePageState state;
+
+  _FutsalScoreDrawer(BuildContext context, this.state)
+      : super(
+          child: ListView(
+            children: <Widget>[
+              const DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text(
+                  'Futsal Scoreboard',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              ListTile(
+                title: const Text('計算対象外'),
+                trailing: Switch(
+                  // thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                  //   (Set<MaterialState> states) {
+                  //     if (states.contains(MaterialState.selected)) {
+                  //       return const Icon(Icons.check);
+                  //     }
+                  //     return const Icon(Icons.close);
+                  //   },
+                  // ),
+                  value: state.ignoreInCalculation,
+                  onChanged: (value) {
+                    state.setState(() {
+                      state.ignoreInCalculation = value;
+                    });
+                    state._updateFirestore(state.selectedDateStr, {
+                      'ignoreInCalculation': state.ignoreInCalculation,
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text('Yearly Scoreboard'),
+                onTap: () =>
+                    Navigator.pushNamed(context, Screen.yearlyScore.name),
+              ),
+            ],
+          ),
+        );
 }

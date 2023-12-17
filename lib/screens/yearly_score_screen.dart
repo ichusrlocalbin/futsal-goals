@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-import 'futsal_score_screen.dart';
 import 'screens.dart';
+import '../utils.dart';
 
 class YearlyScorePage extends StatefulWidget {
   @override
@@ -52,22 +52,27 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
       int totalWins = 0;
       int totalDraws = 0;
       int totalLosses = 0;
+      int ignoreDays = 0;
 
       for (var doc in yearlySnapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['date'] = doc.id;
         tempScores.add(data);
-        totalGoals += data['goals'] as int? ?? 0;
-        totalWins += data['wins'] as int? ?? 0;
-        totalDraws += data['draws'] as int? ?? 0;
-        totalLosses += data['losses'] as int? ?? 0;
+        if (data['ignoreInCalculation'] != null && data['ignoreInCalculation']!) {
+          ignoreDays++;
+        } else {
+          totalGoals += data['goals'] as int? ?? 0;
+          totalWins += data['wins'] as int? ?? 0;
+          totalDraws += data['draws'] as int? ?? 0;
+          totalLosses += data['losses'] as int? ?? 0;
+        }
       }
 
       totalPlayedDays = tempScores.length;
       num totalPlayed = totalWins + totalDraws + totalLosses;
       winRate = totalPlayed > 0 ? totalWins / totalPlayed : 0.0;
       averageGoalsPerDay =
-          tempScores.isNotEmpty ? totalGoals / tempScores.length : 0.0;
+          tempScores.isNotEmpty && (tempScores.length - ignoreDays) != 0 ? totalGoals / (tempScores.length - ignoreDays): 0.0;
 
       setState(() {
         dailyScores = tempScores;
@@ -75,7 +80,7 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
         yearlyWins = totalWins;
         yearlyDraws = totalDraws;
         yearlyLosses = totalLosses;
-        totalPlayedDays = tempScores.length;
+        totalPlayedDays = tempScores.length - ignoreDays;
       });
     }
   }
@@ -83,32 +88,30 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
   Future<void> _selectYear(BuildContext context) async {
     var selectedYear = DateTime.parse('${selectedYearStr}0101');
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Year'),
-          content: SizedBox(
-            width: 300,
-            height: 300,
-            child: YearPicker(
-              initialDate: selectedYear,
-              firstDate: DateTime(selectedYear.year - 10),
-              lastDate: DateTime(selectedYear.year + 10),
-              selectedDate: selectedYear,
-              onChanged: (DateTime dateTime) {
-                Navigator.pop(context);
-                final pickerYearStr = DateFormat('yyyy').format(dateTime);
-                if (pickerYearStr != selectedYearStr) {
-                  setState(() {
-                      selectedYearStr = pickerYearStr;
-                      _calculateYearlyScores();
-                  });
-                }
-            })
-          )
-        );
-      }
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: const Text('Select Year'),
+              content: SizedBox(
+                  width: 300,
+                  height: 300,
+                  child: YearPicker(
+                      initialDate: selectedYear,
+                      firstDate: DateTime(selectedYear.year - 10),
+                      lastDate: DateTime(selectedYear.year + 10),
+                      selectedDate: selectedYear,
+                      onChanged: (DateTime dateTime) {
+                        Navigator.pop(context);
+                        final pickerYearStr =
+                            DateFormat('yyyy').format(dateTime);
+                        if (pickerYearStr != selectedYearStr) {
+                          setState(() {
+                            selectedYearStr = pickerYearStr;
+                            _calculateYearlyScores();
+                          });
+                        }
+                      })));
+        });
   }
 
   @override
@@ -158,22 +161,24 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                 DataColumn(label: Text('勝ち')),
                 DataColumn(label: Text('引き分け')),
                 DataColumn(label: Text('負け')),
+                DataColumn(label: Text('対象外')),
               ],
               rows: dailyScores.map<DataRow>((score) {
                 return DataRow(
                   cells: <DataCell>[
-                    DataCell(Text(
-                        "${score['date'].substring(0, 4)}/${score['date'].substring(4, 6)}/${score['date'].substring(6, 8)}")),
+                    DataCell(Text(Utils.dateFormatString(score['date']))),
                     DataCell(Text((score['goals'] ?? 0).toString())),
                     DataCell(Text((score['wins'] ?? 0).toString())),
                     DataCell(Text((score['draws'] ?? 0).toString())),
                     DataCell(Text((score['losses'] ?? 0).toString())),
+                    DataCell((score['ignoreInCalculation'] ?? false) ? Icon(Icons.check) : Text('')),
                   ],
                 );
               }).toList(),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, Screen.futsalScore.name),
+              onPressed: () =>
+                  Navigator.pushNamed(context, Screen.futsalScore.name),
               child: const Text('得点記録'),
             ),
           ],
