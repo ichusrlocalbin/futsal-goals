@@ -12,3 +12,17 @@
   <meta name="google-signin-client_id" content="YOUR_GOOGLE_SIGN_IN_OAUTH_CLIENT_ID.apps.googleusercontent.com">
   ```
   * [参考](https://pub.dev/packages/google_sign_in_web#web-integration)
+* firestore のルール設定
+  ```
+  rules_version = '2';
+
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      // usersコレクション内のドキュメントに対するルール
+      match /users/{userId}/{document=**} {
+        // 読み取りと書き込みのアクセスを、認証されたユーザーの自身のドキュメントに限定する
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+  ```
