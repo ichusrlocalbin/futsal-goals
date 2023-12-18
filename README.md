@@ -53,13 +53,7 @@ $ flutter run -d chrome
 #### build
 
 ```bash
-$ flutter build web
-```
-
-or
-
-```bash
-$ flutter build web --release
+$ flutter build web --release --no-tree-shake-icons
 ```
 
 #### firebase hosting
