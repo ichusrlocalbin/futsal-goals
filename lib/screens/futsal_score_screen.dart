@@ -225,11 +225,13 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
                 Utils.dateFormatString(selectedDateStr),
                 style: const TextStyle(fontSize: 36),
               ),
-              FloatingActionButton(
-                onPressed: () => _selectDate(context),
-                tooltip: 'SelectDate',
-                child: const Icon(Icons.calendar_month),
-              ),
+              Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: IconButton.filledTonal(
+                    onPressed: () => _selectDate(context),
+                    tooltip: 'Select Date',
+                    icon: const Icon(Icons.calendar_month),
+                  )),
             ]),
             Text(
               '$goals',

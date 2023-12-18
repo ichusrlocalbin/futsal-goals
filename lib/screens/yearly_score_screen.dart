@@ -161,11 +161,13 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                 '${selectedYearStr}年',
                 style: const TextStyle(fontSize: 36),
               ),
-              FloatingActionButton(
-                onPressed: () => _selectYear(context),
-                tooltip: 'Select Year',
-                child: const Icon(Icons.calendar_month),
-              ),
+              Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: IconButton.filledTonal(
+                    onPressed: () => _selectYear(context),
+                    tooltip: 'Select Year',
+                    icon: const Icon(Icons.calendar_month),
+                  )),
             ]),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
