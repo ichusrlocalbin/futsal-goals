@@ -1,8 +1,19 @@
 # futsalのゴール数を管理
 
+## what is this?
+
+* futsalのゴールと勝敗を記録するwebアプリ
+* 環境構築に従えば、自分用の環境が出来るはず
+
 ## 環境構築
 
-### console
+### 開発環境
+
+* flutter: 3.16.3
+* node: 20.10.0 (正確な値は .node-version を参照)
+* ruby: 3.2.2 (正確な値は .node-version を参照)
+
+### firebase console
 
 * firestoreを有効に
 * firebase authを有効に
@@ -29,6 +40,12 @@
   }
   ```
 
+### 動作確認
+
+```bash
+$ flutter run -d chrome
+```
+
 ### deploy
 
 * [Build and release a web app](https://docs.flutter.dev/deployment/web)を参考に
@@ -47,7 +64,7 @@ $ flutter build web --release
 
 #### firebase hosting
 
-```
+```bash
 $ firebase init hosting
 > Use an existing project
 > ... (プロジェクトの選択)
@@ -65,9 +82,15 @@ i  Writing project information to .firebaserc...
 $ 
 ```
 
-### deploy
+#### deploy
 
 ```bash
 $ firebase deply
 ```
 https://<プロジェクト名>.web.app にデプロイされる
+
+## License
+
+MIT
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
