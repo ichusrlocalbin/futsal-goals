@@ -217,6 +217,10 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
           title: Text(widget.title),
           actions: <Widget>[
             IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: '${Utils.dateFormatString(selectedDateStr)}データ詳細編集',
+                onPressed: () => _showDailyDetailData(context)),
+            IconButton(
                 icon: Icon(Icons.table_view_outlined,
                     color: Theme.of(context).colorScheme.secondary),
                 tooltip: '年間情報画面',
@@ -336,6 +340,54 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
       },
     );
   }
+
+  void _showDailyDetailData(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+              //  A bottom sheet uses a different context so calling setState does not work. cf. https://stackoverflow.com/a/52883373
+              builder: (BuildContext context, StateSetter stateSetter) {
+            return ListView(children: <Widget>[
+              ListTile(
+                title: const Text('計算対象外'),
+                trailing: Switch(
+                  // thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                  //   (Set<MaterialState> states) {
+                  //     if (states.contains(MaterialState.selected)) {
+                  //       return const Icon(Icons.check);
+                  //     }
+                  //     return const Icon(Icons.close);
+                  //   },
+                  // ),
+                  value: ignoreInCalculation,
+                  onChanged: (value) {
+                    stateSetter(() {
+                      ignoreInCalculation = value;
+                    });
+                    _updateFirestore(selectedDateStr, {
+                      'ignoreInCalculation': ignoreInCalculation,
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                  title: RichText(
+                      text: TextSpan(children: [
+                    TextSpan(
+                        text:
+                            '${Utils.dateFormatString(selectedDateStr)}データ削除 '),
+                    const WidgetSpan(
+                      child: Icon(Icons.delete, color: Colors.redAccent),
+                    ),
+                  ])),
+                  onTap: () {
+                    _showDeleteDialog(context);
+                  }),
+            ]);
+          });
+        });
+  }
 }
 
 class _FutsalScoreDrawer extends Drawer {
@@ -357,54 +409,6 @@ class _FutsalScoreDrawer extends Drawer {
                   ),
                 ),
               ),
-              ListTile(
-                  title: RichText(
-                      text: TextSpan(children: [
-                    TextSpan(text: "年間情報  "),
-                    WidgetSpan(
-                      child: Icon(Icons.table_view_outlined,
-                          color: Theme.of(context).colorScheme.secondary),
-                    ),
-                  ])),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, Screen.yearlyScore.name);
-                  }),
-              ListTile(
-                title: const Text('計算対象外'),
-                trailing: Switch(
-                  // thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
-                  //   (Set<MaterialState> states) {
-                  //     if (states.contains(MaterialState.selected)) {
-                  //       return const Icon(Icons.check);
-                  //     }
-                  //     return const Icon(Icons.close);
-                  //   },
-                  // ),
-                  value: state.ignoreInCalculation,
-                  onChanged: (value) {
-                    state.setState(() {
-                      state.ignoreInCalculation = value;
-                    });
-                    state._updateFirestore(state.selectedDateStr, {
-                      'ignoreInCalculation': state.ignoreInCalculation,
-                    });
-                  },
-                ),
-              ),
-              ListTile(
-                  title: RichText(
-                      text: TextSpan(children: [
-                    TextSpan(
-                        text:
-                            '${Utils.dateFormatString(state.selectedDateStr)}データ削除 '),
-                    const WidgetSpan(
-                      child: Icon(Icons.delete, color: Colors.redAccent),
-                    ),
-                  ])),
-                  onTap: () {
-                    state._showDeleteDialog(context);
-                  }),
               ListTile(
                 title: RichText(
                     text: TextSpan(children: [
