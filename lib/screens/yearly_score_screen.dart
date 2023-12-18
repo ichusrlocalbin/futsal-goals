@@ -157,14 +157,15 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
           children: [
             // 年間データ
             Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                Text('${selectedYearStr}年',
-                  style: const TextStyle(fontSize: 36),
-                ),
-                FloatingActionButton(
-                  onPressed: () => _selectYear(context),
-                  tooltip: 'Select Year',
-                  child: const Icon(Icons.calendar_month),
-                ),
+              Text(
+                '${selectedYearStr}年',
+                style: const TextStyle(fontSize: 36),
+              ),
+              FloatingActionButton(
+                onPressed: () => _selectYear(context),
+                tooltip: 'Select Year',
+                child: const Icon(Icons.calendar_month),
+              ),
             ]),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -193,10 +194,12 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
               scrollDirection: Axis.horizontal,
               child: DataTable(
                 columns: <DataColumn>[
-                  DataColumn(label: RichText(text: const TextSpan(children:[
-                          WidgetSpan(child: Icon(Icons.sports_soccer)),
-                          TextSpan(text: '/日'),
-                ]))),
+                  DataColumn(
+                      label: RichText(
+                          text: const TextSpan(children: [
+                    WidgetSpan(child: Icon(Icons.sports_soccer)),
+                    TextSpan(text: '/日'),
+                  ]))),
                   const DataColumn(label: Text('勝率')),
                   const DataColumn(label: Text('負け率')),
                 ],
@@ -204,8 +207,8 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                   DataRow(
                     cells: <DataCell>[
                       DataCell(Text(averageGoalsPerDay.toStringAsFixed(1))),
-                      DataCell(Text((lossRate * 100).toStringAsFixed(0) + '%')),
                       DataCell(Text((winRate * 100).toStringAsFixed(0) + '%')),
+                      DataCell(Text((lossRate * 100).toStringAsFixed(0) + '%')),
                     ],
                   )
                 ],
@@ -224,18 +227,18 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                   DataColumn(label: Text('対象外')),
                 ],
                 rows: dailyScores.map<DataRow>((score) {
-                    return DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text(Utils.dateFormatString(score['date']))),
-                        DataCell(Text((score['goals'] ?? 0).toString())),
-                        DataCell(Text((score['wins'] ?? 0).toString())),
-                        DataCell(Text((score['draws'] ?? 0).toString())),
-                        DataCell(Text((score['losses'] ?? 0).toString())),
-                        DataCell((score['ignoreInCalculation'] ?? false)
+                  return DataRow(
+                    cells: <DataCell>[
+                      DataCell(Text(Utils.dateFormatString(score['date']))),
+                      DataCell(Text((score['goals'] ?? 0).toString())),
+                      DataCell(Text((score['wins'] ?? 0).toString())),
+                      DataCell(Text((score['draws'] ?? 0).toString())),
+                      DataCell(Text((score['losses'] ?? 0).toString())),
+                      DataCell((score['ignoreInCalculation'] ?? false)
                           ? Icon(Icons.check)
                           : Text('')),
-                      ],
-                    );
+                    ],
+                  );
                 }).toList(),
               ),
             ),
@@ -268,11 +271,11 @@ class _YearlyScoreDrawer extends Drawer {
               ),
               ListTile(
                   title: RichText(
-                    text: TextSpan(children: [
-                        const TextSpan(text: "得点記録  "),
-                        const WidgetSpan(
-                          child: Icon(Icons.mode_edit, color: Colors.lightBlue),
-                        ),
+                      text: TextSpan(children: [
+                    const TextSpan(text: "得点記録  "),
+                    const WidgetSpan(
+                      child: Icon(Icons.mode_edit, color: Colors.lightBlue),
+                    ),
                   ])),
                   onTap: () {
                     Navigator.pop(context);

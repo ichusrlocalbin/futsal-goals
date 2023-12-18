@@ -100,6 +100,9 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   }
 
   void _inCrementOrDecrementScore(Score score, bool isIncrement) {
+    //debug
+    // print(
+    //     'screen size: (${MediaQuery.of(context).size.width} x ${MediaQuery.of(context).size.height})');
     if (currentUser == null) return;
     setState(() {
       switch (score) {
@@ -348,7 +351,8 @@ class _FutsalScoreDrawer extends Drawer {
                       text: TextSpan(children: [
                     TextSpan(text: "年間情報  "),
                     const WidgetSpan(
-                      child: Icon(Icons.calendar_month, color: Colors.lightBlue),
+                      child:
+                          Icon(Icons.calendar_month, color: Colors.lightBlue),
                     ),
                   ])),
                   onTap: () {
@@ -391,15 +395,15 @@ class _FutsalScoreDrawer extends Drawer {
                     state._showDeleteDialog(context);
                   }),
               ListTile(
-                  title: RichText(
+                title: RichText(
                     text: TextSpan(children: [
-                        const TextSpan(text: 'ログアウト '),
-                        WidgetSpan(
-                          child: Icon(Icons.logout, color: Colors.grey.shade700),
-                        ),
-                  ])),
-                  onTap: state._signOut,
-                ),
+                  const TextSpan(text: 'ログアウト '),
+                  WidgetSpan(
+                    child: Icon(Icons.logout, color: Colors.grey.shade700),
+                  ),
+                ])),
+                onTap: state._signOut,
+              ),
             ],
           ),
         );
