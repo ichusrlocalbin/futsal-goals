@@ -38,6 +38,18 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
     _calculateYearlyScores();
   }
 
+  bool _isEmpty(Map<String, dynamic> score) {
+    bool isEmpty = (score['goals'] == null || score['goals'] == 0) &&
+        (score['wins'] == null || score['wins'] == 0) &&
+        (score['draws'] == null || score['draws'] == 0) &&
+        (score['losses'] == null || score['losses'] == 0) &&
+        (score['ignoreInCalculation'] == null ||
+            !score['ignoreInCalculation']) &&
+        (score['runningDistance'] == null || score['runningDistance'] == 0) &&
+        (score['memo'] == null || score['memo'] == '');
+    return isEmpty;
+  }
+
   void _calculateYearlyScores() async {
     if (currentUser != null) {
       String startOfYear = '${selectedYearStr}0101';
@@ -61,6 +73,9 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
       for (var doc in yearlySnapshot.docs) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['date'] = doc.id;
+        if (_isEmpty(data)) {
+          continue;
+        }
         tempScores.add(data);
         if (data['ignoreInCalculation'] != null &&
             data['ignoreInCalculation']!) {
