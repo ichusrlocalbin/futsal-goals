@@ -361,7 +361,8 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
                 trailing: SizedBox(
                   width: 100,
                   child: TextFormField(
-                    keyboardType: TextInputType.number,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     initialValue: (runningDistance == 0)
                         ? ''
                         : runningDistance.toString(),
