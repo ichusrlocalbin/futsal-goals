@@ -256,19 +256,21 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
                       smallerButton: winSmallerButton),
                 ),
               ]),
-              Column(children: <Widget>[
-                Text(
-                  draws.toString(),
-                  style: const TextStyle(fontSize: 80),
-                ),
-                SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: OverlapCircleTwoButtons(
-                      biggerButton: drawBiggerButton,
-                      smallerButton: drawSmallerButton),
-                ),
-              ]),
+              Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  child: Column(children: <Widget>[
+                    Text(
+                      draws.toString(),
+                      style: const TextStyle(fontSize: 80),
+                    ),
+                    SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: OverlapCircleTwoButtons(
+                          biggerButton: drawBiggerButton,
+                          smallerButton: drawSmallerButton),
+                    ),
+                  ])),
               Column(children: <Widget>[
                 Text(
                   losses.toString(),
