@@ -132,10 +132,11 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
               (score['losses'] ?? 0).toString(),
               (score['ignoreInCalculation'] ?? '').toString(),
               (score['runningDistance'] ?? '').toString(),
+              (score['memo'] ?? '').toString(),
             ])
         .toList();
     dailyScoresList
-        .insert(0, ["日付", "ゴール数", "勝ち", "引き分け", "負け", "対象外", "走行距離"]);
+        .insert(0, ["日付", "ゴール数", "勝ち", "引き分け", "負け", "対象外", "走行距離", "メモ"]);
     String csvData = const ListToCsvConverter().convert(dailyScoresList);
     final bytes = utf8.encode(csvData);
     final blob = html.Blob([bytes], 'text/csv');
@@ -242,6 +243,7 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                   DataColumn(label: Text('対象外')),
                   DataColumn(label: Text('km')),
                   DataColumn(label: Text('km/試合')),
+                  DataColumn(label: Text('メモ')),
                 ],
                 rows: dailyScores.map<DataRow>((score) {
                   int g = score['goals'] ?? 0;
@@ -263,6 +265,7 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                       DataCell(Text(((r == null || w + d + l == 0)
                           ? ''
                           : (r / (w + d + l)).toStringAsFixed(1)))),
+                      DataCell(Text(score['memo'] ?? '')),
                     ],
                   );
                 }).toList(),

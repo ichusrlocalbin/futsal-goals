@@ -28,6 +28,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   bool ignoreInCalculation = false;
   String selectedDateStr = DateFormat('yyyyMMdd').format(DateTime.now());
   double runningDistance = 0.0;
+  String memo = '';
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -57,6 +58,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         losses = data['losses'] ?? 0;
         ignoreInCalculation = data['ignoreInCalculation'] ?? false;
         runningDistance = data['runningDistance'] ?? 0;
+        memo = data['memo'] ?? '';
       });
     } else {
       _resetScores();
@@ -71,6 +73,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
       losses = 0;
       ignoreInCalculation = false;
       runningDistance = 0;
+      memo = '';
     });
   }
 
@@ -356,7 +359,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
               ListTile(
                 title: const Text('走行距離(km)'),
                 trailing: SizedBox(
-                  width: 200,
+                  width: 100,
                   child: TextFormField(
                     keyboardType: TextInputType.number,
                     initialValue: (runningDistance == 0)
@@ -372,6 +375,23 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
                       });
                       _updateFirestore(selectedDateStr, {
                         'runningDistance': runningDistance,
+                      });
+                    },
+                  ),
+                ),
+              ),
+              ListTile(
+                title: const Text('メモ'),
+                trailing: SizedBox(
+                  width: 400,
+                  child: TextFormField(
+                    initialValue: memo ?? '',
+                    onChanged: (value) {
+                      stateSetter(() {
+                        memo = value;
+                      });
+                      _updateFirestore(selectedDateStr, {
+                        'memo': memo,
                       });
                     },
                   ),
