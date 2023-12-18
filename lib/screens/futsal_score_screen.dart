@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'screens.dart';
 import 'login_screen.dart';
@@ -26,6 +27,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
   int losses = 0;
   bool ignoreInCalculation = false;
   String selectedDateStr = DateFormat('yyyyMMdd').format(DateTime.now());
+  double runningDistance = 0.0;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -54,6 +56,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
         draws = data['draws'] ?? 0;
         losses = data['losses'] ?? 0;
         ignoreInCalculation = data['ignoreInCalculation'] ?? false;
+        runningDistance = data['runningDistance'] ?? 0;
       });
     } else {
       _resetScores();
@@ -67,6 +70,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
       draws = 0;
       losses = 0;
       ignoreInCalculation = false;
+      runningDistance = 0;
     });
   }
 
@@ -349,6 +353,30 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
               //  A bottom sheet uses a different context so calling setState does not work. cf. https://stackoverflow.com/a/52883373
               builder: (BuildContext context, StateSetter stateSetter) {
             return ListView(children: <Widget>[
+              ListTile(
+                title: const Text('走行距離(km)'),
+                trailing: SizedBox(
+                  width: 200,
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    initialValue: (runningDistance == 0)
+                        ? ''
+                        : runningDistance.toString(),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^[0-9]+.?[0-9]*'))
+                    ],
+                    onChanged: (value) {
+                      stateSetter(() {
+                        runningDistance = value == '' ? 0 : double.parse(value);
+                      });
+                      _updateFirestore(selectedDateStr, {
+                        'runningDistance': runningDistance,
+                      });
+                    },
+                  ),
+                ),
+              ),
               ListTile(
                 title: const Text('計算対象外'),
                 trailing: Switch(

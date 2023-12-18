@@ -130,10 +130,12 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
               (score['wins'] ?? 0).toString(),
               (score['draws'] ?? 0).toString(),
               (score['losses'] ?? 0).toString(),
-              (score['ignoreInCalculation'] ?? false).toString()
+              (score['ignoreInCalculation'] ?? '').toString(),
+              (score['runningDistance'] ?? '').toString(),
             ])
         .toList();
-    dailyScoresList.insert(0, ["日付", "ゴール数", "勝ち", "引き分け", "負け", "対象外"]);
+    dailyScoresList
+        .insert(0, ["日付", "ゴール数", "勝ち", "引き分け", "負け", "対象外", "走行距離"]);
     String csvData = const ListToCsvConverter().convert(dailyScoresList);
     final bytes = utf8.encode(csvData);
     final blob = html.Blob([bytes], 'text/csv');
@@ -238,18 +240,29 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
                   DataColumn(label: Text('分')),
                   DataColumn(label: Text('負')),
                   DataColumn(label: Text('対象外')),
+                  DataColumn(label: Text('km')),
+                  DataColumn(label: Text('km/試合')),
                 ],
                 rows: dailyScores.map<DataRow>((score) {
+                  int g = score['goals'] ?? 0;
+                  int w = score['wins'] ?? 0;
+                  int d = score['draws'] ?? 0;
+                  int l = score['losses'] ?? 0;
+                  double? r = score['runningDistance'];
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text(Utils.dateFormatString(score['date']))),
-                      DataCell(Text((score['goals'] ?? 0).toString())),
-                      DataCell(Text((score['wins'] ?? 0).toString())),
-                      DataCell(Text((score['draws'] ?? 0).toString())),
-                      DataCell(Text((score['losses'] ?? 0).toString())),
+                      DataCell(Text(g.toString())),
+                      DataCell(Text(w.toString())),
+                      DataCell(Text(d.toString())),
+                      DataCell(Text(l.toString())),
                       DataCell((score['ignoreInCalculation'] ?? false)
                           ? Icon(Icons.check)
                           : Text('')),
+                      DataCell(Text((r ?? '').toString())),
+                      DataCell(Text(((r == null || w + d + l == 0)
+                          ? ''
+                          : (r / (w + d + l)).toStringAsFixed(1)))),
                     ],
                   );
                 }).toList(),
