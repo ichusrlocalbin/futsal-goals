@@ -148,10 +148,21 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        foregroundColor: Colors.white,
-        title: Text('年間情報'),
-      ),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Colors.white,
+          title: Text('年間情報'),
+          actions: <Widget>[
+            IconButton(
+                icon: const Icon(Icons.cloud_download_outlined),
+                tooltip: '${selectedYearStr}年データダウンロード',
+                onPressed: () => generateAndDownloadCsv()),
+            IconButton(
+                icon: Icon(Icons.edit_calendar_outlined,
+                    color: Theme.of(context).colorScheme.inversePrimary),
+                tooltip: '得点記録画面',
+                onPressed: () =>
+                    Navigator.pushNamed(context, Screen.futsalScore.name)),
+          ]),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -247,54 +258,6 @@ class _YearlyScorePageState extends State<YearlyScorePage> {
           ],
         ),
       ),
-      drawer: _YearlyScoreDrawer(context, this),
     );
   }
-}
-
-class _YearlyScoreDrawer extends Drawer {
-  final _YearlyScorePageState state;
-
-  _YearlyScoreDrawer(BuildContext context, this.state)
-      : super(
-          child: ListView(
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                child: const Text(
-                  '年間情報',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
-                ),
-              ),
-              ListTile(
-                  title: RichText(
-                      text: TextSpan(children: [
-                    const TextSpan(text: "得点記録  "),
-                    const WidgetSpan(
-                      child: Icon(Icons.mode_edit, color: Colors.lightBlue),
-                    ),
-                  ])),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, Screen.futsalScore.name);
-                  }),
-              ListTile(
-                  title: RichText(
-                      text: TextSpan(children: [
-                    TextSpan(text: '${state.selectedYearStr}年データダウンロード '),
-                    const WidgetSpan(
-                      child: Icon(Icons.cloud_download_outlined),
-                    ),
-                  ])),
-                  onTap: () {
-                    state.generateAndDownloadCsv();
-                  }),
-            ],
-          ),
-        );
 }

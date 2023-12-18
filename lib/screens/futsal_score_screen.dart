@@ -213,9 +213,16 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.table_view_outlined,
+                    color: Theme.of(context).colorScheme.secondary),
+                tooltip: '年間情報画面',
+                onPressed: () =>
+                    Navigator.pushNamed(context, Screen.yearlyScore.name)),
+          ]),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -304,7 +311,7 @@ class _FutsalScorePageState extends State<FutsalScorePage> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('データ削除'),
+          title: Text('${Utils.dateFormatString(selectedDateStr)}データ削除'),
           content: const Text('本当に削除しますか？'),
           actions: <Widget>[
             TextButton(
@@ -354,9 +361,9 @@ class _FutsalScoreDrawer extends Drawer {
                   title: RichText(
                       text: TextSpan(children: [
                     TextSpan(text: "年間情報  "),
-                    const WidgetSpan(
-                      child:
-                          Icon(Icons.calendar_month, color: Colors.lightBlue),
+                    WidgetSpan(
+                      child: Icon(Icons.table_view_outlined,
+                          color: Theme.of(context).colorScheme.secondary),
                     ),
                   ])),
                   onTap: () {
