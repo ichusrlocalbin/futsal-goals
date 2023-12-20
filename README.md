@@ -3,6 +3,14 @@
 ## what is this?
 
 * futsalのゴールと勝敗を記録するwebアプリ
+  * ゴール数の記録
+  * 勝敗、引き分けの記録
+  * 走行距離、メモの記録
+  * 1年の結果表示
+  * csvファイルへのダウンロード
+  <img src="./docs/images/daily_score.png" width=33% height=33%>
+  <img src="./docs/images/yearly_score.png" width=33% height=33%>
+  <img src="./docs/images/score_edit.png" width=33% height=33%>
 * 環境構築に従えば、自分用の環境が出来るはず
 
 ## 環境構築
