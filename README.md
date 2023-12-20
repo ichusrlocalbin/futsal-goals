@@ -91,6 +91,44 @@ $ firebase deply
 ```
 https://<プロジェクト名>.web.app にデプロイされる
 
+
+### 「このアプリは Google で確認されていません」「This app isn't verfied」対応
+
+#### 原因
+
+* [OAuth同意画面](https://console.cloud.google.com/apis/credentials/consent)の
+> アプリの確認を受けなかった場合はどうなりますか？
+> 未確認アプリまたはテストビルドでは、認可リクエストの OAuth スコープに基づいて [未確認アプリの警告](https://support.google.com/cloud/answer/7454865?hl=ja) が表示されます。この警告は、不正なアプリケーションからユーザーとデータを保護するためです。
+
+同じ箇所の「アプリは Google の確認を受ける必要がありますか？」を見ると条件を満たしていないので不要な気もするんだけど...
+
+#### 実施内容
+
+* 新たにドメインを取ってレビューをしてもらった。レビューはアイコンを追加するだけで開始されるので、ドメインが必須かは分からない(ドメイン取った後に気づいた)
+
+* `APIとサービス` → `認証情報` → `ウェブアプリケーションのクライアントID`
+  * `承認済みの JavaScript 生成元` に取得したドメインのURLを追加
+  * `承認済みのリダイレクトURI` に取得したドメインのURLを追加
+* レビューを開始すると、「ドメインの所有権の証明の要件を遵守してください」と出たので
+  *　[サイトの所有権を確認する](https://support.google.com/webmasters/answer/9008080?hl=ja) に従って [新しいプロパティを追加](https://support.google.com/webmasters/answer/34592)
+  * サブドメインは既にCNAMEを記載していたので大本のドメインのTXTを認証した
+* Firebase console → `Authentication` → `Settings` → `Authorized domain` タブに取得したドメインを追加
+
+#### レビューでの指摘事項
+
+* ホームページにプライバシーポリシーのリンクを張ること
+
+#### 参考: 試行錯誤して失敗
+
+最初、下の設定をしたけど、関係なかった
+* `APIとサービス` → `認証情報` → `OAuth 2.0 クライアント ID` の `Web client (auto created by Google Service)`
+  * `承認済みの JavaScript 生成元` に `https://futsal-goals.web.app` を追加
+  * `承認済みのリダイレクト URI` に `https://futsal-goals.web.app/__/auth/handler` を追加
+    * [参考](https://pub.dev/packages/google_sign_in_web#web-integration)
+* `APIとサービス` → `OAuth同意画面` → `アプリを編集` → `デベロッパーの連絡先情報` にメールアドレスを追加 → 非機密のスコープ で `.../auth/userinfo.email`,  `.../auth/userinfo.profile`, `openid` を選択 (必要ないかも)
+
+
+
 ## License
 
 MIT
