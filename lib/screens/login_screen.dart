@@ -7,8 +7,7 @@ class LoginPage extends StatelessWidget {
   Future<UserCredential> _signInWithGoogle() async {
     GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
-    googleProvider
-        .addScope('https://www.googleapis.com/auth/contacts.readonly');
+    googleProvider.addScope('email');
     googleProvider.setCustomParameters({'login_hint': 'user@gmail.com'});
     return await FirebaseAuth.instance.signInWithPopup(googleProvider);
     // Or use signInWithRedirect

@@ -117,6 +117,7 @@ https://<プロジェクト名>.web.app にデプロイされる
 #### レビューでの指摘事項
 
 * ホームページにプライバシーポリシーのリンクを張ること
+* https://www.googleapis.com/auth/contacts.readonly のスコープのアクセスをしている → `login_screen.dart` で `googleProvider.addScope('email')` に狭めた
 
 #### 参考: 試行錯誤して失敗
 
@@ -126,7 +127,6 @@ https://<プロジェクト名>.web.app にデプロイされる
   * `承認済みのリダイレクト URI` に `https://futsal-goals.web.app/__/auth/handler` を追加
     * [参考](https://pub.dev/packages/google_sign_in_web#web-integration)
 * `APIとサービス` → `OAuth同意画面` → `アプリを編集` → `デベロッパーの連絡先情報` にメールアドレスを追加 → 非機密のスコープ で `.../auth/userinfo.email`,  `.../auth/userinfo.profile`, `openid` を選択 (必要ないかも)
-
 
 
 ## License
