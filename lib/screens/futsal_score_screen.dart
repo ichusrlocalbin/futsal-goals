@@ -515,9 +515,8 @@ class OverlapCircleTwoButtons extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
+        Transform.translate(
+          offset: const Offset(-35, 50),
           child: ElevatedButton(
             onPressed: smallerButton.onPressed,
             child: Icon(smallerButton.iconData,
