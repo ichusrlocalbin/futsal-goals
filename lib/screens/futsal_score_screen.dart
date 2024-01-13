@@ -516,17 +516,17 @@ class OverlapCircleTwoButtons extends StatelessWidget {
           ),
         ),
         Transform.translate(
-          offset: const Offset(-35, 50),
+          offset: const Offset(-50, 55),
           child: ElevatedButton(
             onPressed: smallerButton.onPressed,
-            child: Icon(smallerButton.iconData,
-                color: Colors.white, size: smallerButton.size),
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
               padding: const EdgeInsets.all(8.0),
               backgroundColor: smallerButton.backgroundColor,
               side: const BorderSide(width: 1.5, color: Colors.white),
             ),
+            child: Icon(smallerButton.iconData,
+                color: Colors.white, size: smallerButton.size),
           ),
         ),
       ],

@@ -87,7 +87,7 @@ $
 #### deploy
 
 ```bash
-$ firebase deply
+$ firebase deploy
 ```
 https://<プロジェクト名>.web.app にデプロイされる
 
@@ -127,6 +127,30 @@ https://<プロジェクト名>.web.app にデプロイされる
   * `承認済みのリダイレクト URI` に `https://futsal-goals.web.app/__/auth/handler` を追加
     * [参考](https://pub.dev/packages/google_sign_in_web#web-integration)
 * `APIとサービス` → `OAuth同意画面` → `アプリを編集` → `デベロッパーの連絡先情報` にメールアドレスを追加 → 非機密のスコープ で `.../auth/userinfo.email`,  `.../auth/userinfo.profile`, `openid` を選択 (必要ないかも)
+
+### デプロイしても反映されない
+
+いずれも未確認
+
+firebase.jsonで次のようにキャッシュを無効にする。 ([参考](https://stackoverflow.com/a/63436899))
+
+```
+{
+  "hosting": {
+    "public": "build/web",
+    "headers": [
+      { "source":"**", "headers": [{"key": "Cache-Control", "value": "no-cache"}] }
+    ]
+  }
+}
+```
+
+もしくは、
+
+```bash
+flutter build web --release --no-tree-shake-icons --pwa-strategy=none
+```
+とする。 ([参考](https://stackoverflow.com/a/65110613))
 
 
 ## License
